@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useEffect, useState } from "react";
 import Notiflix from 'notiflix';
 import { getImages } from "services/getImages";
 import Searchbar from "components/Searchbar/Searchbar";
@@ -8,87 +8,66 @@ import Loader from "components/Loader/Loader";
 import Modal from 'components/Modal/Modal';
 import css from './App.module.css'
 
-class App extends Component {
-  state = {
-    searchText: '',
-    images: [],
-    page: 1,
-    error: null,
-    status: 'idle',
-    isLoading: false,
-    isShowModal: false,
-    modalImg: ''
-  };
+const App = () => {
+  const [searchText, setSearchText] = useState('');
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isShowModal, setIsShowModal] = useState(false);
+  const [modalImg, setModalImg] = useState('');
 
-  componentDidUpdate(prevProps, prevState) {
-    const { searchText, page } = this.state;
-        if (prevState.searchText !== searchText
-            || prevState.page !== page) {
-            
-             this.setState({ isLoading: true });
+  useEffect(() => {
+    if (searchText === '') {
+      return;
+    };
 
-        getImages(searchText, page)
+    getImages(searchText, page)
             .then(data => {
                 if (data.hits.length === 0) {
                     Notiflix.Notify.failure('There are no images...');
                 }
 
-                return this.setState(prevState => ({
-                  images: [...prevState.images, ...data.hits] ,
-          }));
+                setImages(prevState => ([...prevState, ...data.hits]));
             })
-            .catch(error => this.setState({ error }))
-            .finally(() => {this.setState({ isLoading: false })})
-        }
-  };
+            .catch(error => setError(error))
+            .finally(() => {setIsLoading(false)})
+  }, [page, searchText])
   
-  onLoadMore = () => {
-        this.setState(prevState => {
-            return { page: prevState.page + 1 }
-        })
-    };
-
-  handleFormSubmit = (searchText) => {
-    this.setState({
-      searchText,
-      images: [],
-      page: 1,      
-    })
-  }
-
-  showModal = (modalImg) => {
-    this.setState({ isShowModal: true, modalImg })
+  const onLoadMore = () => {
+        setPage(page + 1)
   };
 
-  closeModal = () => {
-    this.setState({ isShowModal: false })
+  const handleFormSubmit = (searchText) => {
+    setSearchText(searchText);
+    setImages([]);
+    setPage(1);
   };
 
-  clearImageGallery = () => {
-    this.setState({ images: [], page: 1 })
+  const showModal = (modalImg) => {
+    setIsShowModal(true);
+    setModalImg();
   };
 
-  render() {
-    const { images, page, isShowModal, modalImg, error, isLoading } = this.state;
-
+  const closeModal = () => {
+    setIsShowModal(false);
+  };
     
     return (
       <div className={css.app}>
         <Searchbar
-          onSubmit={this.handleFormSubmit}
+          onSubmit={handleFormSubmit}
           resetPage={page}
           resetGallery={images} />
         {error && <div>{error.message}</div>}
         {images.length > 0 ? <ImageGallery
           images={images}
-          showModal={this.showModal} /> : <h1>Enter something</h1>}
+          showModal={showModal} /> : <h1>Enter something</h1>}
         {isLoading && <Loader />}
-        {(images.length > 0 ) && <Button onClick={this.onLoadMore} />}
-        {isShowModal && <Modal modalImg={modalImg} onClose={this.closeModal} />}
+        {(images.length > 0 ) && <Button onClick={onLoadMore} />}
+        {isShowModal && <Modal modalImg={modalImg} onClose={closeModal} />}
       </div>
     )
-    
-  }
 };
 
 export default App;
