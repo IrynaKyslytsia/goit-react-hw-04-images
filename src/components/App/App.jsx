@@ -46,7 +46,7 @@ const App = () => {
 
   const showModal = (modalImg) => {
     setIsShowModal(true);
-    setModalImg();
+    setModalImg(modalImg);
   };
 
   const closeModal = () => {
