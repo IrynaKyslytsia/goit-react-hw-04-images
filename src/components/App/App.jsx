@@ -56,9 +56,7 @@ const App = () => {
     return (
       <div className={css.app}>
         <Searchbar
-          onSubmit={handleFormSubmit}
-          resetPage={page}
-          resetGallery={images} />
+          onSubmit={handleFormSubmit}/>
         {error && <div>{error.message}</div>}
         {images.length > 0 ? <ImageGallery
           images={images}
