@@ -22,6 +22,8 @@ const App = () => {
       return;
     };
 
+    setIsLoading(true);
+
     getImages(searchText, page)
             .then(data => {
                 if (data.hits.length === 0) {
