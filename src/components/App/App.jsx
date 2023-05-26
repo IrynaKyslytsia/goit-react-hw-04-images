@@ -64,7 +64,7 @@ const App = () => {
           images={images}
           showModal={showModal} /> : <h1>Enter something</h1>}
         {isLoading && <Loader />}
-        {(images.length > 0 ) && <Button onClick={onLoadMore} />}
+        {(images.length > 0 && !isLoading) && <Button onClick={onLoadMore} />}
         {isShowModal && <Modal modalImg={modalImg} onClose={closeModal} />}
       </div>
     )
